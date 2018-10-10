@@ -150,7 +150,8 @@ static const std::vector<StreamData> stream_data{
     std::regex("view.yahoo.com/show/[^/]+/episode/[^/]+/"),
     std::regex("Watch .+ Free Online - (.+) \\| Yahoo View"),
   },
-  // YouTube
+  //
+
   {
     Stream::Youtube,
     taiga::kStream_Youtube,
@@ -158,6 +159,15 @@ static const std::vector<StreamData> stream_data{
     L"https://www.youtube.com",
     std::regex("youtube\\.com/watch"),
     std::regex(u8"YouTube|(?:\u25B6 )?(.+) - YouTube"),
+  },
+  // www3.gogoanime.in
+  {
+    Stream:: Gogo,
+    taiga::kStream_GoGo,
+    L"Gogo",
+    L"https://www3.gogoanime.in",
+    std::regex("gogoanime.in/.*-episode-[0-9]*"),
+    std::regex(".*"),
   },
 };
 
@@ -255,9 +265,7 @@ bool GetTitleFromStreamingMediaProvider(const std::wstring& url,
   const auto stream = FindStreamFromUrl(url);
 
   if (stream) {
-    std::string str = WstrToStr(title);
-    CleanStreamTitle(*stream, str);
-    title = StrToWstr(str);
+    
   } else {
     title.clear();
   }

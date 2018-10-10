@@ -119,6 +119,7 @@ enum AppSettingName {
   kStream_Wakanim,
   kStream_Yahoo,
   kStream_Youtube,
+  kStream_GoGo,
 
   // Sharing
   kShare_Discord_ApplicationId,
