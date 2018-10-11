@@ -167,7 +167,7 @@ static const std::vector<StreamData> stream_data{
     L"Gogo",
     L"https://www3.gogoanime.in",
     std::regex("gogoanime.in/.*-episode-[0-9]*"),
-    std::regex(".*"),
+    std::regex("Watch.*Episode.*[0-9]*.*"),
   },
 };
 
@@ -215,57 +215,17 @@ bool ApplyStreamTitleFormat(const StreamData& stream_data, std::string& title) {
   return false;
 }
 
-void CleanStreamTitle(const StreamData& stream_data, std::string& title) {
-  if (!ApplyStreamTitleFormat(stream_data, title))
-    return;
-
-  switch (stream_data.id) {
-    case Stream::Adn: {
-      auto str = StrToWstr(title);
-      ReplaceString(str, L" : ", L" - ");
-      title = WstrToStr(str);
-      break;
-    }
-    case Stream::Ann: {
-      static const std::regex pattern{" \\((?:s|d)(?:, uncut)?\\)"};
-      title = std::regex_replace(title, pattern, "");
-      break;
-    }
-    case Stream::Hidive: {
-      static const std::regex pattern{"(?:(Episode \\d+)|[^ ]+) of (.+)"};
-      std::smatch match;
-      if (std::regex_match(title, match, pattern))
-        title = match.str(2) + (match.length(1) ? " " + match.str(1) : "");
-      break;
-    }
-    case Stream::Plex: {
-      auto str = StrToWstr(title);
-      ReplaceString(str, L" \u00B7 ", L"");
-      title = WstrToStr(str);
-      break;
-    }
-    case Stream::Vrv: {
-      auto str = StrToWstr(title);
-      ReplaceString(str, 0, L": EP ", L" - EP ", false, false);
-      title = WstrToStr(str);
-      break;
-    }
-    case Stream::Wakanim: {
-      static const std::regex pattern{"(?:Episode (\\d+)|Film|Movie) - (?:ENGDUB - )?(.+)"};
-      std::smatch match;
-      if (std::regex_match(title, match, pattern))
-        title = match.str(2) + (match.length(1) ? " - Episode " + match.str(1) : "");
-      break;
-    }
-  }
-}
-
 bool GetTitleFromStreamingMediaProvider(const std::wstring& url,
                                         std::wstring& title) {
   const auto stream = FindStreamFromUrl(url);
 
   if (stream) {
-    
+    if ((*stream).name == StrToWstr("Gogo")) {
+      std::wregex removeWatch{ L"Watch" };
+      title = std::regex_replace(title, removeWatch, L"");
+      std::wregex removeEpisode{ L"Episode [0-9]*.*" };
+      title = std::regex_replace(title, removeEpisode, L"");
+    }
   } else {
     title.clear();
   }
